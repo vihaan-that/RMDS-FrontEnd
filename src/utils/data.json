@@ -1,0 +1,8 @@
+
+{
+  "cards": [
+    { "value": "95", "name": "Efficiency" },
+    { "value": "10000", "name": "Daily Output" },
+    { "value": "80", "name": "System Load" }
+  ]
+}
