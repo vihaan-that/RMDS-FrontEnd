@@ -13,7 +13,26 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DatePickerWithRange } from '@/components/date-picker-with-range';
+import { DatePickerWithRange } from './date-picker-with-range';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Function to generate time options in 15-minute intervals
+const generateTimeOptions = () => {
+  const options = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 15) {
+      const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+      options.push(timeString);
+    }
+  }
+  return options;
+};
 
 // Function to calculate statistics for an array of numbers
 const calculateStats = (values) => {
@@ -100,28 +119,71 @@ export default function PlantDataTable({ rawData }) {
     from: new Date(2024, 0, 1),
     to: new Date(2024, 0, 31)
   });
+  const [startTime, setStartTime] = useState('00:00');
+  const [endTime, setEndTime] = useState('23:45');
   const [processedData, setProcessedData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const timeOptions = generateTimeOptions();
 
-  // Process data when date range changes
-  useEffect(() => {
+  const handleSubmit = () => {
     if (!rawData?.components) return;
+    
+    setIsLoading(true);
 
-    const processed = rawData.components.map(component => {
-      // For demo purposes, we'll use the monthly data for statistics
-      // In a real app, you would filter based on the actual date range
-      const stats = calculateStats(component.historicalData.monthly);
-      
-      return {
-        ...component,
-        maxValue: stats.max,
-        minValue: stats.min,
-        avgValue: stats.avg,
-        stdDev: stats.stdDev
-      };
+    try {
+      // Create full DateTime objects by combining dates and times
+      const startDateTime = new Date(dateRange.from);
+      const [startHours, startMinutes] = startTime.split(':');
+      startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
+
+      const endDateTime = new Date(dateRange.to);
+      const [endHours, endMinutes] = endTime.split(':');
+      endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
+
+      // Validate date range
+      if (endDateTime < startDateTime) {
+        alert('End date/time must be after start date/time');
+        return;
+      }
+
+      // Process the data with the new date-time range
+      const processed = rawData.components.map(component => {
+        // Here you would filter historicalData based on startDateTime and endDateTime
+        // For demo purposes, we'll continue using the monthly data
+        const stats = calculateStats(component.historicalData.monthly);
+        
+        return {
+          ...component,
+          maxValue: stats.max,
+          minValue: stats.min,
+          avgValue: stats.avg,
+          stdDev: stats.stdDev
+        };
+      });
+
+      setProcessedData(processed);
+    } catch (error) {
+      console.error('Error processing data:', error);
+      alert('Error processing data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setDateRange({
+      from: new Date(2024, 0, 1),
+      to: new Date(2024, 0, 31)
     });
+    setStartTime('00:00');
+    setEndTime('23:45');
+    handleSubmit();
+  };
 
-    setProcessedData(processed);
-  }, [rawData, dateRange]);
+  // Initialize data on component mount
+  useEffect(() => {
+    handleSubmit();
+  }, [rawData]);
 
   const table = useReactTable({
     data: processedData,
@@ -169,12 +231,66 @@ export default function PlantDataTable({ rawData }) {
       
       {renderCards()}
       
-      <div className="mb-6">
-        <DatePickerWithRange 
-          className="w-full"
-          value={dateRange}
-          onChange={setDateRange}
-        />
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-col space-y-2">
+          <label className="text-sm font-medium">Date Range</label>
+          <DatePickerWithRange 
+            className="w-full"
+            value={dateRange}
+            onChange={setDateRange}
+          />
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Start Time</label>
+            <Select value={startTime} onValueChange={setStartTime}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select start time" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeOptions.map((time) => (
+                  <SelectItem key={`start-${time}`} value={time}>
+                    {time}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">End Time</label>
+            <Select value={endTime} onValueChange={setEndTime}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select end time" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeOptions.map((time) => (
+                  <SelectItem key={`end-${time}`} value={time}>
+                    {time}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="flex gap-4">
+          <Button 
+            onClick={handleSubmit}
+            className="flex-1"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Updating...' : 'Update Data'}
+          </Button>
+          <Button 
+            onClick={handleReset}
+            variant="outline"
+            disabled={isLoading}
+          >
+            Reset
+          </Button>
+        </div>
       </div>
 
       <div className="mb-4 flex items-center justify-between">
