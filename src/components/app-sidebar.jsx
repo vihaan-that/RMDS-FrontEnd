@@ -65,14 +65,24 @@ const data = {
       url: "/dashboard/asset-monitoring",
       icon: Monitor,
       items: [
-        { title: "Machine 1", url: "/dashboard/asset-monitoring/machine-1" },
-        { title: "Machine 2", url: "/dashboard/asset-monitoring/machine-2" },
-        { title: "Machine 3", url: "/dashboard/asset-monitoring/machine-3" },
-        { title: "Machine 4", url: "/dashboard/asset-monitoring/machine-4" },
-        { title: "Machine 5", url: "/dashboard/asset-monitoring/machine-5" },
-        { title: "Machine 6", url: "/dashboard/asset-monitoring/machine-6" },
-        { title: "Machine 7", url: "/dashboard/asset-monitoring/machine-7" },
-        { title: "Machine 8", url: "/dashboard/asset-monitoring/machine-8" }
+        {
+          title: "Project 1",
+          url: "/dashboard/asset-monitoring/project-1",
+          items: [
+            { title: "Asset 1", url: "/dashboard/asset-monitoring/project-1/asset-1" },
+            { title: "Asset 2", url: "/dashboard/asset-monitoring/project-1/asset-2" },
+            { title: "Asset 3", url: "/dashboard/asset-monitoring/project-1/asset-3" }
+          ]
+        },
+        {
+          title: "Project 2",
+          url: "/dashboard/asset-monitoring/project-2",
+          items: [
+            { title: "Asset 1", url: "/dashboard/asset-monitoring/project-2/asset-1" },
+            { title: "Asset 2", url: "/dashboard/asset-monitoring/project-2/asset-2" },
+            { title: "Asset 3", url: "/dashboard/asset-monitoring/project-2/asset-3" }
+          ]
+        }
       ]
     },
     {
@@ -138,11 +148,40 @@ export function AppSidebar({ ...props }) {
                     <CollapsibleContent>
                       <SidebarMenuSub>
                         {item.items.map(subItem => (
-                          <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton asChild>
-                              <Link href={subItem.url}>{subItem.title}</Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
+                          <Collapsible
+                            key={subItem.title}
+                            defaultOpen={false}
+                            className="group/collapsible"
+                          >
+                            <SidebarMenuSubItem>
+                              <CollapsibleTrigger asChild>
+                                <SidebarMenuSubButton asChild>
+                                  <Link href={subItem.url}>
+                                    {subItem.title}
+                                    {subItem.items ? (
+                                      <>
+                                        <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                                        <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                                      </>
+                                    ) : null}
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </CollapsibleTrigger>
+                              {subItem.items ? (
+                                <CollapsibleContent>
+                                  <SidebarMenuSub>
+                                    {subItem.items.map(nestedItem => (
+                                      <SidebarMenuSubItem key={nestedItem.title}>
+                                        <SidebarMenuSubButton asChild>
+                                          <Link href={nestedItem.url}>{nestedItem.title}</Link>
+                                        </SidebarMenuSubButton>
+                                      </SidebarMenuSubItem>
+                                    ))}
+                                  </SidebarMenuSub>
+                                </CollapsibleContent>
+                              ) : null}
+                            </SidebarMenuSubItem>
+                          </Collapsible>
                         ))}
                       </SidebarMenuSub>
                     </CollapsibleContent>
