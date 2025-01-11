@@ -1,15 +1,16 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { authApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-
+import { authApi } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     checkAuth();
@@ -25,6 +26,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error('Auth check failed:', error);
       localStorage.removeItem('token');
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     } finally {
       setLoading(false);
     }
@@ -34,19 +36,35 @@ export function AuthProvider({ children }) {
     try {
       const { token, user: userData } = await authApi.login(credentials);
       localStorage.setItem('token', token);
+      // Set token in cookie for middleware
+      document.cookie = `token=${token}; path=/`;
       setUser(userData);
+      toast({
+        title: "Login successful",
+        description: "Welcome back!",
+      });
       router.push('/dashboard');
       return { success: true };
     } catch (error) {
       console.error('Login failed:', error);
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: error.message || "Please check your credentials and try again",
+      });
       return { success: false, error: error.message };
     }
   };
 
   const logout = () => {
-    authApi.logout();
+    localStorage.removeItem('token');
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     setUser(null);
-    router.push('/');
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out",
+    });
+    router.push('/login');
   };
 
   const value = {
@@ -57,7 +75,11 @@ export function AuthProvider({ children }) {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
   return (

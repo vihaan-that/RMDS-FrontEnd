@@ -1,3 +1,4 @@
+"use client"
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -10,8 +11,14 @@ import {
   AlertTriangle,
   FileText,
   Monitor,
-  GitBranch
+  GitBranch,
+  LogOut
 } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { useAuth } from "@/contexts/AuthContext"
 
 import { SearchForm } from "./search-form"
 import {
@@ -93,9 +100,12 @@ const data = {
   ]
 }
 
-export function AppSidebar({ ...props }) {
+export function AppSidebar({ className, ...props }) {
+  const pathname = usePathname()
+  const { logout, user } = useAuth()
+
   return (
-    <Sidebar {...props}>
+    <Sidebar {...props} className={cn("pb-12 h-full flex flex-col", className)}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -192,6 +202,23 @@ export function AppSidebar({ ...props }) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
+      <div className="mt-auto border-t pt-4 px-3">
+        <div className="flex items-center justify-between px-4 mb-2">
+          <div>
+            <p className="text-sm font-medium">{user?.firstName} {user?.lastName}</p>
+            <p className="text-xs text-muted-foreground">{user?.email}</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={logout}
+            className="h-8 w-8"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
       <SidebarRail />
     </Sidebar>
   )
