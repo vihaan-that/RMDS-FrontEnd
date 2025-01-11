@@ -1,36 +1,189 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Power Plant Monitoring System Frontend
+
+A modern, responsive web application built with Next.js 13+ (App Router), React, and shadcn/ui for monitoring power plant operations in real-time.
+
+## Features
+
+### Core Features
+- 🔐 Authentication & Authorization
+  - JWT-based authentication
+  - Role-based access control
+  - Protected routes
+  - Persistent sessions
+
+- 📊 Real-time Monitoring
+  - Live sensor data visualization
+  - Interactive charts and graphs
+  - Real-time updates using SSE
+  - Historical data analysis
+
+- 🏭 Asset Management
+  - Project-based organization
+  - Asset hierarchical view
+  - Component-level monitoring
+  - Sensor data tracking
+
+- ⚠️ Incident Management
+  - Real-time incident tracking
+  - Priority-based categorization
+  - Incident history
+  - Resolution tracking
+
+### Technical Features
+- ⚡ Next.js 13+ with App Router
+- 🎨 Tailwind CSS for styling
+- 🔧 shadcn/ui component library
+- 📈 Recharts for data visualization
+- 🔄 Real-time updates
+- 🛡️ Middleware for route protection
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18.x or higher
+- npm or yarn
+- Running backend server
 
+### Installation
+
+1. Clone the repository:
+```bash
+git clone [repository-url]
+cd powerplant
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Set up environment variables:
+Create a `.env.local` file with:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+4. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000` to see the application.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+powerplant/
+├── src/
+│   ├── app/                    # Next.js 13+ App Router
+│   │   ├── dashboard/         # Dashboard routes
+│   │   ├── login/            # Authentication pages
+│   │   └── layout.js         # Root layout
+│   ├── components/           # Reusable components
+│   │   ├── ui/              # UI components (shadcn/ui)
+│   │   └── app-sidebar.jsx  # Main sidebar navigation
+│   ├── contexts/            # React contexts
+│   │   └── AuthContext.jsx  # Authentication context
+│   ├── hooks/              # Custom React hooks
+│   ├── lib/               # Utility functions
+│   │   ├── api.js        # API service layer
+│   │   └── utils.js      # Helper functions
+│   └── styles/           # Global styles
+├── public/              # Static assets
+└── middleware.js       # Route protection middleware
+```
 
-## Learn More
+## Key Components
 
-To learn more about Next.js, take a look at the following resources:
+### Authentication
+- Login page with form validation
+- JWT token management
+- Protected route middleware
+- User session persistence
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Dashboard
+- Real-time sensor monitoring
+- Asset hierarchy navigation
+- Incident management interface
+- Historical data analysis
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Data Visualization
+- Real-time line charts
+- Historical data trends
+- Sensor status indicators
+- Performance metrics
 
-## Deploy on Vercel
+## State Management
+- React Context for global state
+- Custom hooks for data fetching
+- Real-time updates with SSE
+- Local storage for persistence
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Styling
+- Tailwind CSS for utility-first styling
+- shadcn/ui for consistent components
+- Responsive design
+- Dark mode support
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Integration
+- Centralized API service layer
+- Axios for HTTP requests
+- Error handling
+- Request/response interceptors
+
+## Security
+- Protected routes with middleware
+- JWT token validation
+- XSS protection
+- CORS configuration
+
+## Development
+
+### Available Scripts
+```bash
+# Development
+npm run dev
+
+# Build
+npm run build
+
+# Production
+npm start
+
+# Linting
+npm run lint
+```
+
+### Code Style
+- ESLint for code linting
+- Prettier for code formatting
+- TypeScript for type safety
+- Consistent component structure
+
+## Deployment
+
+### Build for Production
+```bash
+npm run build
+```
+
+### Environment Variables
+Required environment variables:
+- `NEXT_PUBLIC_API_URL`: Backend API URL
+
+## Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+[Add your license here]
+
+## Support
+For support, email [your-email@example.com]
