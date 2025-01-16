@@ -1,5 +1,7 @@
 "use client"
+
 import * as React from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -32,16 +34,43 @@ import {
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail
 } from "@/components/ui/sidebar"
 
-const data = {
-  navMain: [
+export function AppSidebar({ className, ...props }) {
+  const pathname = usePathname()
+  const { logout, user } = useAuth()
+  const [projectAssets, setProjectAssets] = useState([])
+  const [openItems, setOpenItems] = React.useState([])
+
+  useEffect(() => {
+    const fetchProjectAssets = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/api/project-assets')
+        const data = await response.json()
+        setProjectAssets(data.project.assets)
+      } catch (error) {
+        console.error('Error fetching project assets:', error)
+      }
+    }
+
+    fetchProjectAssets()
+  }, [])
+
+  const toggleItem = (itemId) => {
+    setOpenItems((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId]
+    )
+  }
+
+  const navMain = [
     {
       title: "Landing",
       url: "/dashboard",
@@ -69,28 +98,16 @@ const data = {
     },
     {
       title: "Asset Monitoring",
-      url: "/dashboard/asset-monitoring",
+      url: "/dashboard",
       icon: Monitor,
-      items: [
-        {
-          title: "Project 1",
-          url: "/dashboard/asset-monitoring/project-1",
-          items: [
-            { title: "Asset 1", url: "/dashboard/asset-monitoring/project-1/asset-1" },
-            { title: "Asset 2", url: "/dashboard/asset-monitoring/project-1/asset-2" },
-            { title: "Asset 3", url: "/dashboard/asset-monitoring/project-1/asset-3" }
-          ]
-        },
-        {
-          title: "Project 2",
-          url: "/dashboard/asset-monitoring/project-2",
-          items: [
-            { title: "Asset 1", url: "/dashboard/asset-monitoring/project-2/asset-1" },
-            { title: "Asset 2", url: "/dashboard/asset-monitoring/project-2/asset-2" },
-            { title: "Asset 3", url: "/dashboard/asset-monitoring/project-2/asset-3" }
-          ]
-        }
-      ]
+      items: projectAssets.map(asset => ({
+        title: asset.assetName,
+        url: `/dashboard/asset-monitoring/project-1/${asset.assetName.toLowerCase().replace(/\s+/g, '-')}`,
+        items: asset.sensors.map(sensor => ({
+          title: sensor.tagName,
+          url: `/dashboard/asset-monitoring/project-1/${asset.assetName.toLowerCase().replace(/\s+/g, '-')}/${sensor.tagName.toLowerCase().replace(/\s+/g, '-')}`
+        }))
+      }))
     },
     {
       title: "Fault Trees",
@@ -98,11 +115,6 @@ const data = {
       icon: GitBranch
     }
   ]
-}
-
-export function AppSidebar({ className, ...props }) {
-  const pathname = usePathname()
-  const { logout, user } = useAuth()
 
   return (
     <Sidebar {...props} className={cn("pb-12 h-full flex flex-col", className)}>
@@ -133,10 +145,10 @@ export function AppSidebar({ className, ...props }) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {data.navMain.map((item, index) => (
+            {navMain.map((item, index) => (
               <Collapsible
                 key={item.title}
-                defaultOpen={index === 5}
+                defaultOpen={pathname.includes(item.url)}
                 className="group/collapsible"
               >
                 <SidebarMenuItem>
@@ -160,13 +172,14 @@ export function AppSidebar({ className, ...props }) {
                         {item.items.map(subItem => (
                           <Collapsible
                             key={subItem.title}
-                            defaultOpen={false}
+                            defaultOpen={pathname.includes(subItem.url)}
                             className="group/collapsible"
                           >
                             <SidebarMenuSubItem>
                               <CollapsibleTrigger asChild>
                                 <SidebarMenuSubButton asChild>
                                   <Link href={subItem.url}>
+                                    <Database className="mr-2 h-4 w-4" />
                                     {subItem.title}
                                     {subItem.items ? (
                                       <>
@@ -180,10 +193,13 @@ export function AppSidebar({ className, ...props }) {
                               {subItem.items ? (
                                 <CollapsibleContent>
                                   <SidebarMenuSub>
-                                    {subItem.items.map(nestedItem => (
-                                      <SidebarMenuSubItem key={nestedItem.title}>
+                                    {subItem.items.map(sensor => (
+                                      <SidebarMenuSubItem key={sensor.title}>
                                         <SidebarMenuSubButton asChild>
-                                          <Link href={nestedItem.url}>{nestedItem.title}</Link>
+                                          <Link href={sensor.url}>
+                                            <Activity className="mr-2 h-4 w-4" />
+                                            {sensor.title}
+                                          </Link>
                                         </SidebarMenuSubButton>
                                       </SidebarMenuSubItem>
                                     ))}

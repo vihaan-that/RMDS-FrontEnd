@@ -119,6 +119,26 @@ const severityData = [
 
 const COLORS = ["#dc2626", "#f59e0b", "#10b981"]
 
+const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value, index }) => {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="white"
+      textAnchor="middle"
+      dominantBaseline="central"
+      className="text-sm font-medium"
+    >
+      {value}
+    </text>
+  );
+};
+
 export default function IncidentsPage() {
   return (
     <div className="container mx-auto p-4 bg-gray-100 min-h-screen">
@@ -150,6 +170,7 @@ export default function IncidentsPage() {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
+                    label={renderCustomLabel}
                   >
                     {priorityData.map((entry, index) => (
                       <Cell
@@ -191,6 +212,7 @@ export default function IncidentsPage() {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
+                    label={renderCustomLabel}
                   >
                     {severityData.map((entry, index) => (
                       <Cell
