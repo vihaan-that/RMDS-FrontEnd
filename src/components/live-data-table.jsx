@@ -70,7 +70,7 @@ export default function LiveDataTable({ data }) {
     onGlobalFilterChange: setFiltering,
     initialState: {
       pagination: {
-        pageSize: 5,
+        pageSize: 10,
       },
     },
   });

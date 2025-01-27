@@ -17,9 +17,10 @@ export function useAssetData(projectId, assetId) {
           assetApi.getAssetDetails(projectId, assetId),
           sensorApi.getSensors(projectId, assetId)
         ]);
-        
+        console.log(`The sensors list obtained is:`, sensorList); //debug
         setAssetData(assetDetails);
         setSensors(sensorList);
+        console.log(sensorsList);
         setError(null);
       } catch (err) {
         setError(err.message);

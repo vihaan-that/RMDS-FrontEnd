@@ -1,10 +1,12 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { authApi } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
-const AuthContext = createContext({});
+import { authApi } from '@/lib/api';
+import Cookies from 'js-cookie';
+
+const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -18,15 +20,21 @@ export function AuthProvider({ children }) {
 
   const checkAuth = async () => {
     try {
-      const token = localStorage.getItem('token');
+      // Get token from cookie using js-cookie
+      const token = Cookies.get('token');
+      console.log('Token status:', token ? 'found' : 'not found');
+      
       if (token) {
+        console.log('Token found:', token);
+        // Sync localStorage with cookie
+        localStorage.setItem('token', token);
         const userData = await authApi.getCurrentUser();
         setUser(userData);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      localStorage.removeItem('token');
-      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      // localStorage.removeItem('token');
+      // Cookies.remove('token', { path: '/' });
     } finally {
       setLoading(false);
     }
@@ -36,8 +44,11 @@ export function AuthProvider({ children }) {
     try {
       const { token, user: userData } = await authApi.login(credentials);
       localStorage.setItem('token', token);
-      // Set token in cookie for middleware
-      document.cookie = `token=${token}; path=/`;
+      // Set token in cookie with 1 hour expiration
+      Cookies.set('token', token, { 
+        expires: 1/24, // 1 hour in days
+        path: '/' 
+      });
       setUser(userData);
       toast({
         title: "Login successful",
@@ -57,21 +68,14 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    // localStorage.removeItem('token');
+    // Cookies.remove('token', { path: '/' });
     setUser(null);
     toast({
       title: "Logged out",
       description: "You have been successfully logged out",
     });
     router.push('/login');
-  };
-
-  const value = {
-    user,
-    login,
-    logout,
-    loading,
   };
 
   if (loading) {
@@ -83,16 +87,12 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export function useAuth() {
+  return useContext(AuthContext);
+}

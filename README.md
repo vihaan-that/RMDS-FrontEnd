@@ -172,8 +172,36 @@ npm run build
 ```
 
 ### Environment Variables
-Required environment variables:
-- `NEXT_PUBLIC_API_URL`: Backend API URL
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+# API Configuration
+
+NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_WS_URL=ws://localhost:4000
+
+
+# Authentication
+NEXT_PUBLIC_JWT_EXPIRES_IN=3600 # 1 hour in seconds
+
+# Optional: Analytics and Monitoring
+NEXT_PUBLIC_ENABLE_ANALYTICS=false
+NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
+
+# Optional: Feature Flags
+NEXT_PUBLIC_ENABLE_NOTIFICATIONS=true
+NEXT_PUBLIC_ENABLE_CHAT=false
+
+# Development Settings
+NEXT_PUBLIC_DEBUG_MODE=true
+```
+
+Make sure to:
+1. Replace the placeholder values with your actual configuration
+2. Keep the `.env.local` file secure and never commit it to version control
+3. The `NEXT_PUBLIC_` prefix is required for variables to be exposed to the browser
+4. Match the `NEXT_PUBLIC_API_URL` with your backend server URL
 
 ## Contributing
 1. Fork the repository

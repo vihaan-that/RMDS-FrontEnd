@@ -105,7 +105,7 @@ export function AppSidebar({ className, ...props }) {
         url: `/dashboard/asset-monitoring/project-1/${asset.assetName.toLowerCase().replace(/\s+/g, '-')}`,
         items: asset.sensors.map(sensor => ({
           title: sensor.tagName,
-          url: `/dashboard/asset-monitoring/project-1/${asset.assetName.toLowerCase().replace(/\s+/g, '-')}/${sensor.tagName.toLowerCase().replace(/\s+/g, '-')}`
+          url: `/dashboard/asset-monitoring/project-1/${asset.assetName.toLowerCase().replace(/\s+/g, '-')}`
         }))
       }))
     },

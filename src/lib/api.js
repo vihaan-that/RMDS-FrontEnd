@@ -18,7 +18,18 @@ async function handleResponse(response) {
 }
 
 async function fetchWithAuth(endpoint, options = {}) {
-  const token = localStorage.getItem('token');
+  // Try to get token from localStorage first, then cookies
+  let token = localStorage.getItem('token');
+  if (!token) {
+    // Get token from cookies if not in localStorage
+    const cookies = document.cookie.split(';');
+    const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
+    if (tokenCookie) {
+      token = tokenCookie.split('=')[1].trim();
+      // Sync localStorage with cookie
+      localStorage.setItem('token', token);
+    }
+  }
   
   const defaultHeaders = {
     'Content-Type': 'application/json',

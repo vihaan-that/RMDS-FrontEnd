@@ -66,6 +66,7 @@ export default function AssetMonitoringPage() {
         )
         if (currentAsset) {
           console.log('Found asset:', currentAsset);
+          console.log('Asset sensors:', currentAsset.sensors.map(s => ({ id: s._id, name: s.tagName })));
           setAssetData(currentAsset)
         } else {
           console.error('Asset not found in response:', data);
@@ -146,7 +147,7 @@ export default function AssetMonitoringPage() {
     assetData.sensors.forEach(sensor => {
       console.log(`Setting up EventSource for sensor ${sensor.tagName} (${sensor._id})`);
       const eventSource = new EventSource(
-        `http://localhost:4000/api/live/sensor/${sensor._id}`
+        `http://localhost:4000/api/live/sensor/67979100abd6c6c5f21d7479`
       );
 
       eventSource.onopen = () => {
